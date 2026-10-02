@@ -1,5 +1,7 @@
 # LocalSend
 
+This fork is **LocalSend Chat**, adding authorized local text conversations with permanent on-device history for Windows and Android. It uses port **53318** and independent app data. See [fork usage, builds, and verification](README_CHAT.md). The upstream project and license are retained below.
+
 [![CI status][ci-badge]][ci-workflow]
 [![Translations][translate-badge]][translate-link]
 [![Packaging status][packaging-badge]][packaging-link]
