@@ -76,7 +76,7 @@
 
         <!-- Quick tile to launch the app -->
         <service
-            android:name=".QuickTileService"
+            android:name="org.localsend.localsend_app.QuickTileService"
             android:icon="@mipmap/ic_launcher_quicktile_foreground"
             android:label="LocalSend Chat"
             android:process=":quick_tile_service"

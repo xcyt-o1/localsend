@@ -2,6 +2,11 @@
 cmake_minimum_required(VERSION 3.14)
 project(localsend_app LANGUAGES CXX)
 
+# Flutter plugins contain UTF-8 source files, including on non-English Windows.
+if(MSVC)
+  add_compile_options(/utf-8)
+endif()
+
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
 set(BINARY_NAME "localsend_chat")
@@ -75,7 +80,7 @@ install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)
 
 install(FILES
-  "${CMAKE_CURRENT_SOURCE_DIR}/runner/runner.exe.manifest"
+  "${BINARY_NAME}.exe.manifest"
   "localsend_msix_helper.msix"
   "install_msix_helper.ps1"
   DESTINATION "${CMAKE_INSTALL_PREFIX}"
