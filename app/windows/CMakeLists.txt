@@ -103,6 +103,13 @@ set(NATIVE_ASSETS_DIR "${PROJECT_BUILD_DIR}native_assets/windows/")
 install(DIRECTORY "${NATIVE_ASSETS_DIR}"
   DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" COMPONENT Runtime)
 
+# Include the redistributable DLLs already supplied by the upstream repository.
+if(FLUTTER_TARGET_PLATFORM STREQUAL "windows-x64")
+  install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../support/build/windows/x64/"
+    DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" COMPONENT Runtime
+    FILES_MATCHING PATTERN "*.dll")
+endif()
+
 # Fully re-copy the assets directory on each build to avoid having stale files
 # from a previous install.
 set(FLUTTER_ASSET_DIR_NAME "flutter_assets")
