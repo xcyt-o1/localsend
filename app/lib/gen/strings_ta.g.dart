@@ -40,7 +40,7 @@ class TranslationsTa extends Translations with BaseTranslations<AppLocale, Trans
 
   // Translations
   @override
-  String get appName => 'உள்ளக';
+  String get appName => 'LocalSend Chat';
   @override
   late final _Translations$general$ta general = _Translations$general$ta._(_root);
   @override

@@ -53,7 +53,8 @@ android {
     signingConfigs {
         release {
             def keystoreProperties = new Properties()
-            def keystorePropertiesFile = rootProject.file('key.properties')
+            def externalKeyProperties = System.getenv('LOCALSEND_CHAT_KEY_PROPERTIES')
+            def keystorePropertiesFile = externalKeyProperties ? file(externalKeyProperties) : rootProject.file('key.properties')
             if (keystorePropertiesFile.exists()) {
                 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
             }

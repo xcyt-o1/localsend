@@ -34,7 +34,8 @@ class _ReceiveSession {
 
 void main() {
   test('new session works after receiver-side cancel during transfer', () async {
-    final dylib = File('${Directory.current.path}/../../target/debug/librust_lib_localsend_app.dylib');
+    final libraryName = Platform.isWindows ? 'rust_lib_localsend_app.dll' : Platform.isMacOS ? 'librust_lib_localsend_app.dylib' : 'librust_lib_localsend_app.so';
+    final dylib = File('${Directory.current.path}/../../target/debug/$libraryName');
     if (!dylib.existsSync()) {
       markTestSkipped('Rust dylib not built (cargo build -p rust_lib_localsend_app)');
       return;

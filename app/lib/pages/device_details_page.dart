@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:localsend_app/chat/chat_provider.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/favorite_device.dart';
+import 'package:localsend_app/pages/chat_page.dart';
 import 'package:localsend_app/pages/verify_page.dart';
 import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/util/favorites.dart';
@@ -97,6 +99,21 @@ class _DeviceDetailsPageState extends State<DeviceDetailsPage> with Refena {
             ],
           ),
           const SizedBox(height: 30),
+          FilledButton.icon(
+            icon: const Icon(Icons.chat_bubble_outline),
+            label: Text(t.chat.title),
+            onPressed: () async {
+              try {
+                final peer = await ref.notifier(chatProvider).peerForDevice(device);
+                if (context.mounted) await context.push(() => ChatPage(peer: peer));
+              } catch (error) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error is StateError ? error.message : t.chat.actionFailed)));
+                }
+              }
+            },
+          ),
+          const SizedBox(height: 20),
           Table(
             columnWidths: const {
               0: IntrinsicColumnWidth(),
