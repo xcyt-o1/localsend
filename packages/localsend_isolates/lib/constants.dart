@@ -11,7 +11,7 @@ const protocolVersion = '2.2';
 
 /// The default http server port and
 /// and multicast port.
-const defaultPort = 53317;
+const defaultPort = 53318;
 
 /// The default discovery timeout in milliseconds.
 /// This is the time the discovery server waits for responses.

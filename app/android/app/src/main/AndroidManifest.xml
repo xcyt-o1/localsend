@@ -27,7 +27,7 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <application
-        android:label="LocalSend"
+        android:label="LocalSend Chat"
         android:name="${applicationName}"
         android:usesCleartextTraffic="true"
         android:banner="@drawable/banner"
@@ -37,7 +37,7 @@
 
         <!-- localsend: prevent multiple instances by android:launchMode="singleTask" -->
         <activity
-            android:name=".MainActivity"
+            android:name="org.localsend.localsend_app.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/LaunchTheme"
@@ -78,7 +78,7 @@
         <service
             android:name=".QuickTileService"
             android:icon="@mipmap/ic_launcher_quicktile_foreground"
-            android:label="LocalSend"
+            android:label="LocalSend Chat"
             android:process=":quick_tile_service"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true"

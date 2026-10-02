@@ -4,7 +4,7 @@ project(localsend_app LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "localsend_app")
+set(BINARY_NAME "localsend_chat")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -75,7 +75,7 @@ install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)
 
 install(FILES
-  "${BINARY_NAME}.exe.manifest"
+  "${CMAKE_CURRENT_SOURCE_DIR}/runner/runner.exe.manifest"
   "localsend_msix_helper.msix"
   "install_msix_helper.ps1"
   DESTINATION "${CMAKE_INSTALL_PREFIX}"
