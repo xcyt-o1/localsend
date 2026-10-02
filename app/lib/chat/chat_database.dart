@@ -200,8 +200,10 @@ class ChatDatabase extends GeneratedDatabase {
     String text,
     DateTime sentAt, {
     required bool read,
+    String? ip,
   }) => transaction(() async {
     if (!await enabled() || !await authorized(peer)) throw const ChatStorageException(403);
+    if (ip != null) await customStatement('UPDATE chat_peers SET ip = ? WHERE fingerprint = ? AND ip != ?', [ip, peer, ip]);
     final previous = await customSelect(
       'SELECT text, sent_at, received_at FROM chat_messages WHERE peer = ? AND outgoing = 0 AND message_id = ?',
       variables: [Variable(peer), Variable(id)],

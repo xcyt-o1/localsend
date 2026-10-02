@@ -89,13 +89,16 @@ void main() {
       await database.setAuthorized('peer', true);
       await database.upsertPeer('peer', 'Renamed phone', '192.168.1.3', 53318);
       expect(await database.authorized('peer'), isTrue);
-      await database.receive('peer', 'id', 'hello', sentAt, read: false);
+      await database.receive('peer', 'id', 'hello', sentAt, read: false, ip: '192.168.1.4');
+      expect((await database.peers()).single.ip, '192.168.1.4');
+      expect((await database.peers()).single.alias, 'Renamed phone');
       await database.setAuthorized('peer', false);
       await expectLater(
-        database.receive('peer', 'new', 'hello', sentAt, read: false),
+        database.receive('peer', 'new', 'hello', sentAt, read: false, ip: '192.168.1.5'),
         throwsA(isA<ChatStorageException>()),
       );
       expect(await database.messages('peer'), hasLength(1));
+      expect((await database.peers()).single.ip, '192.168.1.4');
       await database.clear(peer: 'peer');
       expect(await database.authorized('peer'), isFalse);
     },

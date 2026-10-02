@@ -218,7 +218,8 @@ class ChatService extends Notifier<ChatState> {
         if (!await database.authorized(peer.fingerprint)) throw const ChatStorageException(403);
         final device = ref.read(nearbyDevicesProvider).devices[peer.fingerprint];
         if (device != null && !device.https) throw const ChatStorageException(403);
-        final response = await _request(peer.fingerprint, device?.ip ?? peer.ip, device?.port ?? peer.port, 'messages', {
+        final target = state.peers.where((p) => p.fingerprint == peer.fingerprint).firstOrNull ?? peer;
+        final response = await _request(peer.fingerprint, target.ip, target.port, 'messages', {
           'id': id,
           'text': text,
           'sentAtUtc': sentAt.toUtc().toIso8601String(),
@@ -252,6 +253,7 @@ class ChatService extends Notifier<ChatState> {
           body['id'] as String,
           body['text'] as String,
           DateTime.parse(body['sentAtUtc'] as String),
+          ip: event.ip,
           read:
               activePeer == event.fingerprint &&
               (isActivePeerVisible?.call() ?? false) &&
