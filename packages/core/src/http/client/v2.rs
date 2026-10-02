@@ -16,6 +16,49 @@ pub struct LsHttpClientV2 {
 }
 
 impl LsHttpClientV2 {
+    /// Fork-only HTTPS API; uses the same pinned TLS identity as file transfers.
+    pub async fn chat_request(
+        &self,
+        ip: &str,
+        port: u16,
+        operation: &str,
+        body: String,
+    ) -> Result<String, ClientError> {
+        let path = match operation {
+            "info" => "/info",
+            "authorize" => "/authorize",
+            "messages" => "/messages",
+            _ => return Err(anyhow::anyhow!("Unknown chat operation").into()),
+        };
+        let url = TargetUrl {
+            version: ApiVersion::V2,
+            protocol: "https",
+            host: ip.to_string(),
+            port,
+            path,
+            params: &[],
+        }
+        .to_string()
+        .replace("/api/localsend/v2/", "/api/localsend-chat/v1/");
+        let request = if operation == "info" {
+            self.client.get(url)
+        } else {
+            self.client
+                .post(url)
+                .header("Content-Type", "application/json")
+                .body(body)
+        };
+        let response = request
+            .timeout(std::time::Duration::from_secs(
+                if operation == "authorize" { 65 } else { 15 },
+            ))
+            .send()
+            .await?;
+        if response.status() != StatusCode::OK {
+            return response.into_error().await;
+        }
+        Ok(response.text().await?)
+    }
     /// Creates a new HTTP client for v2.2 protocol.
     ///
     /// # Arguments

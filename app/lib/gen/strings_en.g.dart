@@ -43,9 +43,10 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
   // Translations
 
-  /// en: 'LocalSend'
-  String get appName => 'LocalSend';
+  /// en: 'LocalSend Chat'
+  String get appName => 'LocalSend Chat';
 
+  late final Translations$chat$en chat = Translations$chat$en.internal(_root);
   late final Translations$general$en general = Translations$general$en.internal(_root);
   late final Translations$receiveTab$en receiveTab = Translations$receiveTab$en.internal(_root);
   late final Translations$sendTab$en sendTab = Translations$sendTab$en.internal(_root);
@@ -73,6 +74,124 @@ class Translations with BaseTranslations<AppLocale, Translations> {
   late final Translations$tray$en tray = Translations$tray$en.internal(_root);
   late final Translations$web$en web = Translations$web$en.internal(_root);
   late final Translations$assetPicker$en assetPicker = Translations$assetPicker$en.internal(_root);
+}
+
+// Path: chat
+class Translations$chat$en {
+  Translations$chat$en.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Chat'
+  String get title => 'Chat';
+
+  /// en: 'Chat settings'
+  String get settings => 'Chat settings';
+
+  /// en: 'Find devices'
+  String get refresh => 'Find devices';
+
+  /// en: 'One-to-one text chat on your local network. History stays on this device.'
+  String get localOnly => 'One-to-one text chat on your local network. History stays on this device.';
+
+  /// en: 'Conversations'
+  String get conversations => 'Conversations';
+
+  /// en: 'Nearby chat devices'
+  String get nearby => 'Nearby chat devices';
+
+  /// en: 'No conversations yet.'
+  String get empty => 'No conversations yet.';
+
+  /// en: 'No new chat devices found. Start LocalSend Chat on the other device.'
+  String get noNearby => 'No new chat devices found. Start LocalSend Chat on the other device.';
+
+  /// en: 'Turn on encryption in network settings to use chat.'
+  String get httpsRequired => 'Turn on encryption in network settings to use chat.';
+
+  /// en: 'Chat is turned off on this device.'
+  String get disabled => 'Chat is turned off on this device.';
+
+  /// en: 'Request chat permission to start a conversation.'
+  String get authorizationRequired => 'Request chat permission to start a conversation.';
+
+  /// en: 'Allow chat with this device?'
+  String get authorizationTitle => 'Allow chat with this device?';
+
+  /// en: 'Accept to allow both devices to exchange messages without further prompts. Compare the verification icons on both devices. You can revoke permission in chat settings.'
+  String get authorizationNotice =>
+      'Accept to allow both devices to exchange messages without further prompts. Compare the verification icons on both devices. You can revoke permission in chat settings.';
+
+  /// en: 'The other device declined chat permission or has chat turned off.'
+  String get authorizationDeclined => 'The other device declined chat permission or has chat turned off.';
+
+  /// en: 'Request chat'
+  String get requestAuthorization => 'Request chat';
+
+  /// en: 'Message exceeds 32 KiB of UTF-8 text.'
+  String get tooLong => 'Message exceeds 32 KiB of UTF-8 text.';
+
+  /// en: 'This device does not support instant chat. File transfers are still available.'
+  String get unsupported => 'This device does not support instant chat. File transfers are still available.';
+
+  /// en: 'Chat request failed. Check the other device and try again.'
+  String get actionFailed => 'Chat request failed. Check the other device and try again.';
+
+  /// en: 'Could not load chat history.'
+  String get storageError => 'Could not load chat history.';
+
+  /// en: 'Enable chat'
+  String get enable => 'Enable chat';
+
+  /// en: 'Keep the app running to receive messages. Android may pause the app in the background.'
+  String get backgroundNotice => 'Keep the app running to receive messages. Android may pause the app in the background.';
+
+  /// en: 'Authorized devices'
+  String get authorizedDevices => 'Authorized devices';
+
+  /// en: 'Revoke permission'
+  String get revoke => 'Revoke permission';
+
+  /// en: 'Clear conversation'
+  String get clear => 'Clear conversation';
+
+  /// en: 'Delete messages from this device? Messages on the other device and chat permissions will be kept.'
+  String get clearNotice => 'Delete messages from this device? Messages on the other device and chat permissions will be kept.';
+
+  /// en: 'Clear all chat history'
+  String get clearAll => 'Clear all chat history';
+
+  /// en: 'Verify device'
+  String get verify => 'Verify device';
+
+  /// en: 'Send a message to start chatting.'
+  String get startConversation => 'Send a message to start chatting.';
+
+  /// en: 'Load older messages'
+  String get loadOlder => 'Load older messages';
+
+  /// en: 'Message (Shift+Enter for a new line)'
+  String get messageHint => 'Message (Shift+Enter for a new line)';
+
+  /// en: 'Send'
+  String get send => 'Send';
+
+  /// en: 'Delivered'
+  String get delivered => 'Delivered';
+
+  /// en: 'Sending…'
+  String get sending => 'Sending…';
+
+  /// en: 'Delivery unconfirmed'
+  String get unconfirmed => 'Delivery unconfirmed';
+
+  /// en: 'Copy message'
+  String get copy => 'Copy message';
+
+  /// en: 'Retry'
+  String get retry => 'Retry';
 }
 
 // Path: general

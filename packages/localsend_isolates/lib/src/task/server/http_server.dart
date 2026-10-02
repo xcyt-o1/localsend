@@ -7,6 +7,7 @@ final httpServerProvider = Provider((ref) => HttpServerService());
 /// Wraps the Rust HTTP server.
 /// Only one server can run at a time.
 class HttpServerService {
+  Future<void> respondChat(String requestId, int status, String body) => _requireServer().respondChat(requestId: requestId, status: status, body: body);
   RsHttpServer? _server;
 
   bool get running => _server != null;

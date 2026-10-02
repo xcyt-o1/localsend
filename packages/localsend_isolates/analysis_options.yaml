@@ -4,6 +4,8 @@ analyzer:
   exclude:
     - lib/**.g.dart
     - lib/**.freezed.dart
+    # Vendored Cargokit has its own package and analyzer configuration.
+    - rust_builder/cargokit/**
 
 formatter:
   trailing_commas: preserve

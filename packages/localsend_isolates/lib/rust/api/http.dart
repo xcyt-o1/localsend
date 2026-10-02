@@ -39,6 +39,8 @@ RsHttpClient createClient({
 abstract class RsHttpClient implements RustOpaqueInterface {
   Future<void> cancel({required ProtocolType protocol, required String ip, required int port, required String sessionId});
 
+  Future<String> chatRequest({required String ip, required int port, required String operation, required String body});
+
   Future<PrepareUploadResult> prepareUpload({
     required ProtocolType protocol,
     required String ip,

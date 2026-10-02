@@ -50,6 +50,18 @@ pub enum ClientError {
 }
 
 impl LsHttpClient {
+    pub async fn chat_request(
+        &self,
+        ip: &str,
+        port: u16,
+        operation: &str,
+        body: String,
+    ) -> Result<String, ClientError> {
+        match self {
+            Self::V2(client) => client.chat_request(ip, port, operation, body).await,
+            Self::V3(_) => Err(anyhow::anyhow!("Chat requires the v2 client").into()),
+        }
+    }
     /// Creates a client for the given protocol version.
     ///
     /// `expected_fingerprint` pins the peer to the certificate with that

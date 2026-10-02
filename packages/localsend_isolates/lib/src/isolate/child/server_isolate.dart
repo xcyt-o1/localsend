@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:localsend_isolates/constants.dart';
 import 'package:localsend_isolates/model/dto/multicast_dto.dart';
 import 'package:localsend_isolates/model/file_type.dart';
+import 'package:localsend_isolates/rust/api/http.dart' as rust_http;
 import 'package:localsend_isolates/rust/api/model.dart' show FileDto;
 import 'package:localsend_isolates/rust/api/server.dart';
+import 'package:localsend_isolates/src/isolate/child/http_provider.dart';
 import 'package:localsend_isolates/src/isolate/child/main.dart';
 import 'package:localsend_isolates/src/isolate/child/sync_provider.dart';
 import 'package:localsend_isolates/src/isolate/dto/send_to_isolate_data.dart';
@@ -20,6 +22,22 @@ import 'package:typed_isolates/typed_isolates.dart';
 final _logger = Logger('HttpServerIsolate');
 
 sealed class BaseHttpServerTask {}
+
+class HttpChatReplyTask implements BaseHttpServerTask {
+  final String requestId;
+  final int status;
+  final String body;
+  HttpChatReplyTask(this.requestId, this.status, this.body);
+}
+
+class HttpChatRequestTask implements BaseHttpServerTask {
+  final String ip;
+  final int port;
+  final String fingerprint;
+  final String operation;
+  final String body;
+  HttpChatRequestTask(this.ip, this.port, this.fingerprint, this.operation, this.body);
+}
 
 /// Starts the HTTP server.
 /// The device information is derived from the sync state.
@@ -165,6 +183,20 @@ class HttpServerFailFileDownloadTask implements BaseHttpServerTask {
 
 /// A message sent from the server isolate to the main isolate.
 sealed class HttpServerEvent {}
+
+class HttpServerChatRequestEvent extends HttpServerEvent {
+  final String requestId;
+  final String ip;
+  final String fingerprint;
+  final String operation;
+  final String body;
+  HttpServerChatRequestEvent(this.requestId, this.ip, this.fingerprint, this.operation, this.body);
+}
+
+class HttpServerChatResultEvent extends HttpServerEvent {
+  final String body;
+  HttpServerChatResultEvent(this.body);
+}
 
 /// The server has been started and is listening.
 /// Always the first event emitted by a [HttpServerStartTask].
@@ -452,6 +484,8 @@ Future<void> setupHttpServerIsolate(
             await for (final event in events) {
               final holder = ref.read(_receiveSessionProvider);
               switch (event) {
+                case RsServerEvent_ChatRequest(:final requestId, :final ip, :final fingerprint, :final operation, :final body):
+                  emit(HttpServerChatRequestEvent(requestId, ip, fingerprint, operation, body));
                 case RsServerEvent_Register(:final ip, :final info):
                   emit(HttpServerRegisterEvent(ip: ip, info: info));
                 case RsServerEvent_PrepareUpload(:final sessionId, :final ip, :final info, :final certFingerprint, :final files):
@@ -564,6 +598,22 @@ Future<void> setupHttpServerIsolate(
               id: task.id,
             ),
           );
+          return;
+        case HttpChatReplyTask reply:
+          await ref.read(httpServerProvider).respondChat(reply.requestId, reply.status, reply.body);
+          return;
+        case HttpChatRequestTask request:
+          try {
+            final client = ref.read(httpProvider).pinnedTo(request.fingerprint, timeoutMs: request.operation == 'authorize' ? 65000 : 15000);
+            final body = await client.chatRequest(ip: request.ip, port: request.port, operation: request.operation, body: request.body);
+            sendToMain(IsolateTaskStreamResult.event(id: task.id, data: HttpServerChatResultEvent(body)));
+          } on rust_http.RsHttpClientError_StatusCode catch (e) {
+            sendToMain(IsolateTaskStreamResult.error(id: task.id, error: 'chat:${e.status}'));
+          } catch (_) {
+            sendToMain(IsolateTaskStreamResult.error(id: task.id, error: 'chat:unconfirmed'));
+          } finally {
+            sendToMain(IsolateTaskStreamResult.done(id: task.id));
+          }
           return;
         case HttpServerPrepareUploadDecisionTask decisionTask:
           final config = decisionTask.config;

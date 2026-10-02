@@ -2,17 +2,17 @@ use crate::http::dto_v2::{
     InfoResponseDtoV2, PrepareUploadRequestDtoV2, PrepareUploadResponseDtoV2, RegisterDtoV2,
     RegisterResponseDtoV2,
 };
+use crate::http::server::PeerIp;
 use crate::http::server::common::collect_to_json::CollectToJson;
 use crate::http::server::common::error::AppError;
 use crate::http::server::common::pin::check_pin;
 use crate::http::server::common::query::parse_query;
-use crate::http::server::common::response::{empty_body, BoxedBody, JsonResponse};
+use crate::http::server::common::response::{BoxedBody, JsonResponse, empty_body};
 use crate::http::server::common::save::{FileTimestamps, FileUploadTarget, SaveResult};
 use crate::http::server::common::session::{
     FileStatusV2, PendingSessionV2, SessionFileV2, SessionStateV2, UploadSessionV2,
 };
-use crate::http::server::PeerIp;
-use crate::http::server::{common, AppState, RequestClientInfo, V2State};
+use crate::http::server::{AppState, RequestClientInfo, V2State, common};
 use crate::model::discovery::PROTOCOL_VERSION_V2;
 use crate::model::transfer::FileDto;
 use hyper::body::Incoming;
@@ -26,6 +26,14 @@ use uuid::Uuid;
 /// Events emitted by the v2 HTTP server that must be handled by the application.
 #[derive(Debug)]
 pub enum ServerEventV2 {
+    ChatRequest {
+        request_id: String,
+        ip: PeerIp,
+        fingerprint: String,
+        operation: String,
+        body: String,
+        reply_tx: oneshot::Sender<super::chat::ChatReply>,
+    },
     /// A device registered itself via `POST /api/localsend/v2/register`.
     ///
     /// On TLS, this event is only emitted when `info.fingerprint` matches the

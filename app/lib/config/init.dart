@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:localsend_app/chat/chat_database.dart';
+import 'package:localsend_app/chat/chat_provider.dart';
 import 'package:localsend_app/config/refena.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/pages/home_page.dart';
@@ -137,6 +139,7 @@ Future<RefenaContainer> preInit(List<String> args) async {
   final container = RefenaContainer(
     observers: kDebugMode ? [CustomRefenaObserver()] : [],
     overrides: [
+      chatDatabaseProvider.overrideWithValue(await ChatDatabase.open(portable: persistenceService.isPortableMode())),
       persistenceProvider.overrideWithValue(persistenceService),
       deviceRawInfoProvider.overrideWithValue(await getDeviceInfo()),
       appArgumentsProvider.overrideWithValue(args),
@@ -176,6 +179,7 @@ Future<RefenaContainer> preInit(List<String> args) async {
   );
 
   await container.redux(parentIsolateProvider).dispatchAsync(IsolateSetupAction());
+  await container.read(chatDatabaseProvider).initialize();
 
   return container;
 }
@@ -184,6 +188,8 @@ StreamSubscription? _sharedMediaSubscription;
 
 /// Will be called when home page has been initialized
 Future<void> postInit(BuildContext context, Ref ref, bool appStart) async {
+  if (appStart) await ref.notifier(chatProvider).start();
+  if (!context.mounted) return;
   await updateSystemOverlayStyle(context);
 
   if (checkPlatform([TargetPlatform.android])) {

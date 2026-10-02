@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:localsend_app/chat/chat_provider.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/cross_file.dart';
 import 'package:localsend_app/model/state/server/server_state.dart';
@@ -337,6 +338,10 @@ class ServerService extends Notifier<ServerState?> {
 
   void _handleEvent(HttpServerEvent event) {
     switch (event) {
+      case HttpServerChatRequestEvent():
+        unawaited(ref.notifier(chatProvider).onRequest(event));
+      case HttpServerChatResultEvent():
+        break;
       case HttpServerStartedEvent():
         break;
       case HttpServerRegisterEvent():

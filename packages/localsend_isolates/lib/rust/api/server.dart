@@ -87,6 +87,8 @@ abstract class RsHttpServer implements RustOpaqueInterface {
   /// hot restart), so this call does not keep the server alive forever.
   Stream<RsServerEvent> listen();
 
+  Future<void> respondChat({required String requestId, required int status, required String body});
+
   /// Answers the pending [RsServerEvent::WebFileDownload] event with the source
   /// the file content should be read from (either a path or a file descriptor).
   ///
@@ -173,6 +175,14 @@ class RegisterDtoV2 {
 @freezed
 sealed class RsServerEvent with _$RsServerEvent {
   const RsServerEvent._();
+
+  const factory RsServerEvent.chatRequest({
+    required String requestId,
+    required String ip,
+    required String fingerprint,
+    required String operation,
+    required String body,
+  }) = RsServerEvent_ChatRequest;
 
   /// A device registered itself via `POST /api/localsend/v2/register`.
   ///

@@ -40,7 +40,9 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 
   // Translations
   @override
-  String get appName => 'LocalSend';
+  String get appName => 'LocalSend Chat';
+  @override
+  late final Translations$chat$zh_CN chat = Translations$chat$zh_CN.internal(_root);
   @override
   late final Translations$general$zh_CN general = Translations$general$zh_CN.internal(_root);
   @override
@@ -95,6 +97,87 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
   late final Translations$web$zh_CN web = Translations$web$zh_CN.internal(_root);
   @override
   late final Translations$assetPicker$zh_CN assetPicker = Translations$assetPicker$zh_CN.internal(_root);
+}
+
+// Path: chat
+class Translations$chat$zh_CN extends Translations$chat$en {
+  Translations$chat$zh_CN.internal(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '聊天';
+  @override
+  String get settings => '聊天设置';
+  @override
+  String get refresh => '查找设备';
+  @override
+  String get localOnly => '在局域网中进行一对一文字聊天。聊天记录保存在本机。';
+  @override
+  String get conversations => '会话';
+  @override
+  String get nearby => '附近的聊天设备';
+  @override
+  String get empty => '暂无会话。';
+  @override
+  String get noNearby => '未发现新的聊天设备，请在另一台设备上启动 LocalSend Chat。';
+  @override
+  String get httpsRequired => '请在网络设置中开启加密后使用聊天。';
+  @override
+  String get disabled => '本机已关闭聊天功能。';
+  @override
+  String get authorizationRequired => '请求聊天授权后即可开始会话。';
+  @override
+  String get authorizationTitle => '允许与此设备聊天？';
+  @override
+  String get authorizationNotice => '接受后，双方可连续收发消息，无需再次确认。请核对两台设备上的验证图标，可在聊天设置中撤销授权。';
+  @override
+  String get authorizationDeclined => '对方拒绝了聊天授权或已关闭聊天功能。';
+  @override
+  String get requestAuthorization => '请求聊天';
+  @override
+  String get tooLong => '消息超过了 UTF-8 文本 32 KiB 的限制。';
+  @override
+  String get unsupported => '该设备不支持即时聊天，仍可正常传输文件。';
+  @override
+  String get actionFailed => '聊天请求失败，请检查对方设备后重试。';
+  @override
+  String get storageError => '无法读取聊天记录。';
+  @override
+  String get enable => '启用聊天';
+  @override
+  String get backgroundNotice => '接收消息时需要保持程序运行，Android 系统可能暂停后台程序。';
+  @override
+  String get authorizedDevices => '已授权设备';
+  @override
+  String get revoke => '撤销授权';
+  @override
+  String get clear => '清空会话';
+  @override
+  String get clearNotice => '删除本机消息？对方的消息和聊天授权将保留。';
+  @override
+  String get clearAll => '清空全部聊天记录';
+  @override
+  String get verify => '验证设备';
+  @override
+  String get startConversation => '发送消息开始聊天。';
+  @override
+  String get loadOlder => '加载更早的消息';
+  @override
+  String get messageHint => '输入消息（Shift+Enter 换行）';
+  @override
+  String get send => '发送';
+  @override
+  String get delivered => '已送达';
+  @override
+  String get sending => '发送中…';
+  @override
+  String get unconfirmed => '发送未确认';
+  @override
+  String get copy => '复制消息';
+  @override
+  String get retry => '重试';
 }
 
 // Path: general

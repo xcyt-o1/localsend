@@ -8,7 +8,7 @@ use localsend::http::server::internal::{InternalConfig, InternalEvent};
 pub use localsend::http::server::v2::SessionEndReasonV2;
 use localsend::http::server::v2::{PrepareUploadDecisionV2, ServerEventV2};
 use localsend::http::server::web::{
-    WebConfig, WebMode as CoreWebMode, WebDownloadConfig, WebDownloadEvent,
+    WebConfig, WebDownloadConfig, WebDownloadEvent, WebMode as CoreWebMode,
 };
 pub use localsend::http::server::web::{WebI18n, WebPages};
 use localsend::http::state::ClientInfo;
@@ -18,6 +18,7 @@ use localsend::model::transfer::{FileContent, FileDto};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, mpsc, oneshot};
+use tokio_util::sync::CancellationToken;
 
 /// Events emitted by the HTTP server that must be handled by the application.
 ///
@@ -28,6 +29,13 @@ use tokio::sync::{Mutex, mpsc, oneshot};
 /// including the interface scope, which the Rust HTTP client accepts back as
 /// a host.
 pub enum RsServerEvent {
+    ChatRequest {
+        request_id: String,
+        ip: String,
+        fingerprint: String,
+        operation: String,
+        body: String,
+    },
     /// A device registered itself via `POST /api/localsend/v2/register`.
     ///
     /// On TLS, this event is only emitted when `info.fingerprint` matches the
@@ -110,6 +118,7 @@ pub enum RsServerEvent {
 }
 
 pub struct RsHttpServer {
+    pending_chat: Mutex<HashMap<String, oneshot::Sender<localsend::http::server::chat::ChatReply>>>,
     instance: Arc<ServerInstance>,
     event_rx: Mutex<Option<mpsc::Receiver<ServerEventV2>>>,
     pending_decision: Mutex<Option<(String, oneshot::Sender<PrepareUploadDecisionV2>)>>,
@@ -124,6 +133,7 @@ pub struct RsHttpServer {
 /// [RUNNING_SERVER] so that a leftover instance can be stopped without its
 /// Dart owner.
 struct ServerInstance {
+    stop_token: CancellationToken,
     handle: localsend::http::server::ServerHandle,
     stop_tx: Mutex<Option<oneshot::Sender<()>>>,
 }
@@ -132,6 +142,7 @@ impl ServerInstance {
     /// Stops the server and waits until the listeners are closed, so the port
     /// can be bound again. Does nothing when already stopped.
     async fn stop(&self) {
+        self.stop_token.cancel();
         if let Some(stop_tx) = self.stop_tx.lock().await.take() {
             let _ = stop_tx.send(());
             self.handle.wait_stopped().await;
@@ -275,12 +286,14 @@ pub async fn start_server(
     .await?;
 
     let instance = Arc::new(ServerInstance {
+        stop_token: CancellationToken::new(),
         handle,
         stop_tx: Mutex::new(Some(stop_tx)),
     });
     *running_server = Some(instance.clone());
 
     Ok(RsHttpServer {
+        pending_chat: Mutex::new(HashMap::new()),
         instance,
         event_rx: Mutex::new(Some(event_rx)),
         pending_decision: Mutex::new(None),
@@ -293,6 +306,13 @@ pub async fn start_server(
 }
 
 impl RsHttpServer {
+    pub async fn respond_chat(&self, request_id: String, status: u16, body: String) {
+        let mut pending = self.pending_chat.lock().await;
+        if let Some(reply) = pending.remove(&request_id) {
+            let _ = reply.send(localsend::http::server::chat::ChatReply { status, body });
+        }
+        pending.retain(|_, reply| !reply.is_closed());
+    }
     /// Emits server events until the server is stopped.
     /// Can only be listened to once.
     ///
@@ -312,6 +332,7 @@ impl RsHttpServer {
         let mut v2_open = true;
         loop {
             let sink_open = tokio::select! {
+                _ = self.instance.stop_token.cancelled() => return,
                 event = event_rx.recv(), if v2_open => {
                     match event {
                         Some(event) => self.handle_server_event(&sink, event).await,
@@ -361,6 +382,26 @@ impl RsHttpServer {
         event: ServerEventV2,
     ) -> bool {
         match event {
+            ServerEventV2::ChatRequest {
+                request_id,
+                ip,
+                fingerprint,
+                operation,
+                body,
+                reply_tx,
+            } => {
+                let mut pending = self.pending_chat.lock().await;
+                pending.retain(|_, reply| !reply.is_closed());
+                pending.insert(request_id.clone(), reply_tx);
+                sink.add(RsServerEvent::ChatRequest {
+                    request_id,
+                    ip: ip.to_string(),
+                    fingerprint,
+                    operation,
+                    body,
+                })
+                .is_ok()
+            }
             ServerEventV2::Register { ip, info } => sink
                 .add(RsServerEvent::Register {
                     ip: ip.to_string(),
@@ -679,6 +720,7 @@ impl RsHttpServer {
     /// Stops the server.
     /// Returns after the listeners are closed, so the port can be bound again.
     pub async fn stop(&self) {
+        self.pending_chat.lock().await.clear();
         self.instance.stop().await;
 
         let mut running_server = RUNNING_SERVER.lock().await;

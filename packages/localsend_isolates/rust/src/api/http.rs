@@ -4,8 +4,8 @@ use crate::frb_generated::StreamSink;
 use flutter_rust_bridge::frb;
 pub use localsend::http::client::{ClientError, LsHttpClientVersion};
 pub use localsend::http::dto::{
-    PrepareUploadRequestDto, PrepareUploadResponseDto, PrepareUploadResult,
-    RegisterDto, RegisterResponseDto,
+    PrepareUploadRequestDto, PrepareUploadResponseDto, PrepareUploadResult, RegisterDto,
+    RegisterResponseDto,
 };
 use localsend::model::discovery::ProtocolType;
 use localsend::util::error::ErrorChain;
@@ -41,6 +41,18 @@ pub fn create_client(
 }
 
 impl RsHttpClient {
+    pub async fn chat_request(
+        &self,
+        ip: &str,
+        port: u16,
+        operation: &str,
+        body: String,
+    ) -> Result<String, RsHttpClientError> {
+        self.inner
+            .chat_request(ip, port, operation, body)
+            .await
+            .map_err(RsHttpClientError::from)
+    }
     pub async fn register(
         &self,
         protocol: ProtocolType,

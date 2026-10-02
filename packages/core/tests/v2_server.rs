@@ -118,6 +118,9 @@ async fn start_test_server_with_verification(
                     ServerEventV2::PrepareUploadAborted { .. } => {}
                     ServerEventV2::CancelReceived { .. } => {}
                     ServerEventV2::ListenerFailed { .. } => {}
+                    ServerEventV2::ChatRequest { reply_tx, .. } => {
+                        let _ = reply_tx.send(localsend::http::server::chat::ChatReply { status: 404, body: "{}".into() });
+                    }
                 }
             }
         }

@@ -11,6 +11,39 @@ import 'package:refena_flutter/refena_flutter.dart';
 import 'package:typed_isolates/id.dart';
 import 'package:typed_isolates/typed_isolates.dart';
 
+class IsolateChatRequestAction extends ReduxActionWithResult<IsolateController, ParentIsolateState, Future<String>> {
+  final String ip;
+  final int port;
+  final String fingerprint;
+  final String operation;
+  final String body;
+  IsolateChatRequestAction({required this.ip, required this.port, required this.fingerprint, required this.operation, this.body = '{}'});
+
+  @override
+  (ParentIsolateState, Future<String>) reduce() {
+    final connection = state.httpServer;
+    if (connection == null) throw StateError('httpServer is not initialized');
+    final result = connection
+        .sendWrappedTaskAndListenStream(task: HttpChatRequestTask(ip, port, fingerprint, operation, body))
+        .first
+        .then((event) => (event as HttpServerChatResultEvent).body);
+    return (state, result);
+  }
+}
+
+class IsolateChatReplyAction extends ReduxAction<IsolateController, ParentIsolateState> {
+  final String requestId;
+  final int status;
+  final String body;
+  IsolateChatReplyAction(this.requestId, this.status, this.body);
+
+  @override
+  ParentIsolateState reduce() {
+    state.httpServer?.sendToIsolate(SendToIsolateData(syncState: null, data: IsolateTask(data: HttpChatReplyTask(requestId, status, body))));
+    return state;
+  }
+}
+
 /// Starts the discovery and returns the stream of confirmed devices:
 /// answered announcements, scan results and devices fed in via
 /// [IsolateDiscoveryAddDeviceAction] all arrive on this one stream.

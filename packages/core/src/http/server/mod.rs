@@ -1,3 +1,4 @@
+pub mod chat;
 pub mod common;
 mod connection_limit;
 pub mod internal;
@@ -31,7 +32,7 @@ use std::num::NonZeroUsize;
 use std::ops::Deref;
 use std::sync::Arc;
 use tokio::io::{AsyncRead, AsyncWrite};
-use tokio::sync::{mpsc, oneshot, Mutex};
+use tokio::sync::{Mutex, mpsc, oneshot};
 use tokio_util::sync::CancellationToken;
 use tokio_util::task::TaskTracker;
 use web::WebState;
@@ -626,6 +627,15 @@ async fn handle_request_inner(mut req: Request<Incoming>) -> Result<Response<Box
     let v2_enabled = state.v2.is_some();
 
     match (req.method(), req.uri().path()) {
+        (&Method::GET, "/api/localsend-chat/v1/info") => {
+            chat::request(req, state, client_info, "info").await
+        }
+        (&Method::POST, "/api/localsend-chat/v1/authorize") => {
+            chat::request(req, state, client_info, "authorize").await
+        }
+        (&Method::POST, "/api/localsend-chat/v1/messages") => {
+            chat::request(req, state, client_info, "messages").await
+        }
         (&Method::GET, "/") => Ok(web::index(&state)),
         (&Method::GET, "/i18n.json") => web::i18n(&state),
         (&Method::POST, "/api/localsend/v2/prepare-download") => {

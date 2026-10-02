@@ -116,6 +116,12 @@ pub(super) enum Answer {
 impl App {
     pub(super) fn handle_server_event(&mut self, event: ServerEventV2) {
         match event {
+            ServerEventV2::ChatRequest { reply_tx, .. } => {
+                let _ = reply_tx.send(localsend::http::server::chat::ChatReply {
+                    status: 404,
+                    body: "{}".into(),
+                });
+            }
             ServerEventV2::Register { ip, info } => {
                 self.device_confirmed(ip.to_string(), info);
             }
@@ -137,7 +143,10 @@ impl App {
                     let _ = decision_tx.send(PrepareUploadDecisionV2::Accept(HashSet::new()));
                     self.ui.log(
                         Category::Receive,
-                        &format!("{alias}: Message received\n{}", sanitize::multi_line(message)),
+                        &format!(
+                            "{alias}: Message received\n{}",
+                            sanitize::multi_line(message)
+                        ),
                     );
                     return;
                 }
